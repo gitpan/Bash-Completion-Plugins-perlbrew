@@ -1,0 +1,42 @@
+{
+   "abstract" : "Bash completion for perlbrew",
+   "author" : [
+      "Rob Hoelz <rob@hoelz.ro>"
+   ],
+   "dynamic_config" : 1,
+   "generated_by" : "Module::Build version 0.38, CPAN::Meta::Converter version 2.110580",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "Bash-Completion-Plugins-perlbrew",
+   "prereqs" : {
+      "configure" : {
+         "requires" : {
+            "Module::Build" : "0.38"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "Bash::Completion" : "0.001",
+            "perl" : "v5.10.0"
+         }
+      }
+   },
+   "provides" : {
+      "Bash::Completion::Plugins::perlbrew" : {
+         "file" : "lib/Bash/Completion/Plugins/perlbrew.pm",
+         "version" : "0.01"
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "license" : [
+         "http://dev.perl.org/licenses/"
+      ]
+   },
+   "version" : "0.01"
+}

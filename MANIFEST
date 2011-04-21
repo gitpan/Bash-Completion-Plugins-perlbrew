@@ -1,0 +1,12 @@
+Build.PL
+Changes
+lib/Bash/Completion/Plugins/perlbrew.pm
+MANIFEST			This list of files
+MANIFEST.SKIP
+META.yml
+README
+t/00-use.t
+t/manifest.t
+t/pod-coverage.t
+t/pod.t
+META.json
