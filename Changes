@@ -1,6 +1,6 @@
 Revision history for Bash-Completion-Plugins-perlbrew
 
-0.02 June 02 2011
+0.03 June 03 2011
      - Convert to Dist::Zilla
      - Add support for new commands
 

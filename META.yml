@@ -20,4 +20,4 @@ resources:
   bugtracker: http://github.com/hoelzro/bash-completion-plugins-perlbrew/issues
   homepage: http://github.com/hoelzro/bash-completion-plugins-perlbrew
   repository: http://github.com/hoelzro/bash-completion-plugins-perlbrew
-version: 0.02
+version: 0.03

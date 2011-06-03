@@ -1,7 +1,7 @@
 ## no critic (RequireUseStrict)
 package Bash::Completion::Plugins::perlbrew;
 BEGIN {
-  $Bash::Completion::Plugins::perlbrew::VERSION = '0.02'; # TRIAL
+  $Bash::Completion::Plugins::perlbrew::VERSION = '0.03';
 }
 
 ## use critic (RequireUseStrict)
@@ -76,7 +76,7 @@ Bash::Completion::Plugins::perlbrew - Bash completion for perlbrew
 
 =head1 VERSION
 
-version 0.02
+version 0.03
 
 =head1 DESCRIPTION
 
