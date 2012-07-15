@@ -1,7 +1,7 @@
 ## no critic (RequireUseStrict)
 package Bash::Completion::Plugins::perlbrew;
 {
-  $Bash::Completion::Plugins::perlbrew::VERSION = '0.05';
+  $Bash::Completion::Plugins::perlbrew::VERSION = '0.06';
 }
 
 ## use critic (RequireUseStrict)
@@ -15,11 +15,13 @@ use Bash::Completion::Utils qw(command_in_path);
 my @perlbrew_commands = qw/
 init    install list use           switch    mirror    off
 version help    env  install-cpanm available uninstall self-upgrade
-alias exec switch-off install-patchperl lib
+alias exec switch-off install-patchperl lib install-ack
+list-modules
 /;
 
 my @perlbrew_options = qw/
  -h --help -f --force -j -n --notest -q --quiet -v --verbose --as -D -U -A
+ --with
 /;
 
 my @lib_subcommands = qw/
@@ -161,7 +163,7 @@ Bash::Completion::Plugins::perlbrew - Bash completion for perlbrew
 
 =head1 VERSION
 
-version 0.05
+version 0.06
 
 =head1 DESCRIPTION
 
