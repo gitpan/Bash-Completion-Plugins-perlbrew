@@ -17,7 +17,7 @@ my %module_build_args = (
     "Rob Hoelz <rob\@hoelz.ro>"
   ],
   "dist_name" => "Bash-Completion-Plugins-perlbrew",
-  "dist_version" => "0.06",
+  "dist_version" => "0.07",
   "license" => "perl",
   "module_name" => "Bash::Completion::Plugins::perlbrew",
   "recommends" => {},

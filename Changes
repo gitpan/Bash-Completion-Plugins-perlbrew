@@ -1,5 +1,8 @@
 Revision history for Bash-Completion-Plugins-perlbrew
 
+0.07 October 15 2012
+     - Add info and download commands (perlbrew 0.53)
+
 0.06 July 15 2012
      - Add support for install-ack, list-modules, and exec --with (perlbrew 0.45)
 
