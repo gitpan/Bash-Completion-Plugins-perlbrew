@@ -1,7 +1,7 @@
 ## no critic (RequireUseStrict)
 package Bash::Completion::Plugins::perlbrew;
 {
-  $Bash::Completion::Plugins::perlbrew::VERSION = '0.07';
+  $Bash::Completion::Plugins::perlbrew::VERSION = '0.08';
 }
 
 ## use critic (RequireUseStrict)
@@ -16,7 +16,7 @@ my @perlbrew_commands = qw/
 init    install list use           switch    mirror    off
 version help    env  install-cpanm available uninstall self-upgrade
 alias exec switch-off install-patchperl lib install-ack
-list-modules info download
+list-modules info download upgrade-perl
 /;
 
 my @perlbrew_options = qw/
@@ -163,7 +163,7 @@ Bash::Completion::Plugins::perlbrew - Bash completion for perlbrew
 
 =head1 VERSION
 
-version 0.07
+version 0.08
 
 =head1 DESCRIPTION
 
