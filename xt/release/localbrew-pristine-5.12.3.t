@@ -8,6 +8,13 @@ use File::Spec;
 use File::Temp;
 use Test::More;
 
+sub is_dist_root {
+    my ( @path ) = @_;
+
+    return -e File::Spec->catfile(@path, 'Makefile.PL') ||
+           -e File::Spec->catfile(@path, 'Build.PL');
+}
+
 delete @ENV{qw/AUTHOR_TESTING RELEASE_TESTING/};
 
 unless($ENV{'PERLBREW_ROOT'}) {
@@ -52,26 +59,38 @@ foreach my $line (@lines) {
     }
 }
 
-$ENV{'PATH'} = join(':', @ENV{qw/PERLBREW_PATH PATH_WITHOUT_PERLBREW/});
+my $pristine_path = qx(perlbrew display-pristine-path);
+chomp $pristine_path;
+$ENV{'PATH'} = join(':', $ENV{'PERLBREW_PATH'}, $pristine_path);
 
 plan tests => 1;
 
 my $tmpdir = File::Temp->newdir;
 
 my $pid = fork;
-if($pid) {
-    unless(defined $pid) {
-        fail "Forking failed!";
-        exit 1;
-    }
+if(!defined $pid) {
+    fail "Forking failed!";
+    exit 1;
+} elsif($pid) {
     waitpid $pid, 0;
     ok !$?, "cpanm should successfully install your dist with no issues";
 } else {
     close STDOUT;
     close STDERR;
 
-    chdir File::Spec->catdir($FindBin::Bin,
-        File::Spec->updir, File::Spec->updir); # exit test directory
+    my @path = File::Spec->splitdir($FindBin::Bin);
 
-    exec 'perl', $cpanm_path, '-L', $tmpdir->dirname, '.';
+    while(@path && !is_dist_root(@path)) {
+        pop @path;
+    }
+    unless(@path) {
+        die "Unable to find dist root\n";
+    }
+    chdir File::Spec->catdir(@path); # exit test directory
+
+    
+
+    delete $ENV{'PERL5LIB'};
+    system 'perl', $cpanm_path, '-L', $tmpdir->dirname, '.';
+    exit($? >> 8);
 }

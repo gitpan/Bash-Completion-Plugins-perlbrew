@@ -1,7 +1,7 @@
 ## no critic (RequireUseStrict)
 package Bash::Completion::Plugins::perlbrew;
 {
-  $Bash::Completion::Plugins::perlbrew::VERSION = '0.08';
+  $Bash::Completion::Plugins::perlbrew::VERSION = '0.09';
 }
 
 ## use critic (RequireUseStrict)
@@ -10,7 +10,7 @@ use warnings;
 use feature 'switch';
 use parent 'Bash::Completion::Plugin';
 
-use Bash::Completion::Utils qw(command_in_path);
+use Bash::Completion::Utils qw(command_in_path prefix_match);
 
 my @perlbrew_commands = qw/
 init    install list use           switch    mirror    off
@@ -21,7 +21,7 @@ list-modules info download upgrade-perl
 
 my @perlbrew_options = qw/
  -h --help -f --force -j -n --notest -q --quiet -v --verbose --as -D -U -A
- --with
+ --with --switch
 /;
 
 my @lib_subcommands = qw/
@@ -67,7 +67,7 @@ sub complete {
     my $word = $r->word;
 
     if($word =~ /^-/) {
-        $r->candidates(grep { /^\Q$word\E/ } @perlbrew_options);
+        $r->candidates(prefix_match($word, @perlbrew_options));
     } else {
         my @args = $r->args;
         shift @args; # get rid of 'perlbrew'
@@ -77,24 +77,33 @@ sub complete {
 
         given($command) {
             when($command eq $word) {
-                $r->candidates(grep { /^\Q$word\E/ }
-                    ( @perlbrew_commands, @perlbrew_options ));
+                $r->candidates(prefix_match($word, @perlbrew_commands,
+                    @perlbrew_options));
             }
             when(qr/^(?:switch|env|use)$/) {
                 my ( $current_perl, @perls ) = _get_perls();
                 my @libs = map { '@' . _extract_lib($_) }
-                    grep { /^\Q$current_perl\E\@/ } @perls;
-                $r->candidates(grep { /^\Q$word\E/ } ( @perls, @libs ));
+                    prefix_match($current_perl . '@', @perls);
+                $r->candidates(prefix_match($word, @perls, @libs));
             }
             when('uninstall') {
                 my ( undef, @perls ) = _get_perls();
-                $r->candidates(grep { /^\Q$word\E/ } @perls);
+                @perls = grep { !/\@/ } @perls;
+                $r->candidates(prefix_match($word, @perls));
             }
             when(qr/^(?:install|download)$/) {
                 my @perls = split /\n/, qx(perlbrew available);
                 @perls = map { /^i?\s*(?<name>.*)/; $+{'name'}  } @perls;
                 push @perls, 'perl-blead';
-                $r->candidates(grep { /^\Q$word\E/ } @perls);
+                push @perls, 'perl-stable';
+                foreach my $perl (@perls) {
+                    if($perl =~ /^perl-/) {
+                        my $copy = $perl;
+                        $copy    =~ s/^perl-//;
+                        push @perls, $copy;
+                    }
+                }
+                $r->candidates(prefix_match($word, @perls));
             }
             when('lib') {
                 my ( $subcommand ) = grep { $_ !~ /^-/ } @args[ 1 .. $#args ];
@@ -102,15 +111,15 @@ sub complete {
                 $subcommand //= '';
 
                 if($subcommand eq $word) {
-                    $r->candidates(grep { /^\Q$word\E/ } @lib_subcommands);
+                    $r->candidates(prefix_match($word, @lib_subcommands));
                 } else {
                     if($subcommand eq 'delete') {
                         my ( $current_perl, @perls ) = _get_perls();
                         my @full_libs    = grep { /\@/ } @perls;
                         my @current_libs = map { '@' . _extract_lib($_) }
-                            grep { /^\Q$current_perl\E\@/ } @perls;
+                            prefix_match($current_perl . '@', @perls);
 
-                        $r->candidates(grep { /^\Q$word\E/ } ( @full_libs, @current_libs ));
+                        $r->candidates(prefix_match($word, @full_libs, @current_libs));
                     } else {
                         $r->candidates(); # we can't predict what you name your
                                           # libs!
@@ -123,7 +132,7 @@ sub complete {
                 my $subcommand = $words[0] // '';
 
                 if($subcommand eq $word) {
-                    $r->candidates(grep { /^\Q$word\E/ } @alias_subcommands);
+                    $r->candidates(prefix_match($word, @alias_subcommands));
                 } else {
                     if($subcommand eq 'create') {
                         my $name = $words[1] // '';
@@ -132,7 +141,7 @@ sub complete {
                             my ( undef, @perls ) = _get_perls();
                             @perls               = grep { $_ !~ /\@/ } @perls;
 
-                            $r->candidates(grep { /^\Q$word\E/ } @perls);
+                            $r->candidates(prefix_match($word, @perls));
                         } else {
                             $r->candidates();
                         }
@@ -151,6 +160,10 @@ sub complete {
     }
 }
 
+sub generate_bash_setup {
+    return [qw(default)];
+}
+
 1;
 
 
@@ -163,7 +176,7 @@ Bash::Completion::Plugins::perlbrew - Bash completion for perlbrew
 
 =head1 VERSION
 
-version 0.08
+version 0.09
 
 =head1 DESCRIPTION
 
@@ -192,7 +205,7 @@ Rob Hoelz <rob@hoelz.ro>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2012 by Rob Hoelz.
+This software is copyright (c) 2013 by Rob Hoelz.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
