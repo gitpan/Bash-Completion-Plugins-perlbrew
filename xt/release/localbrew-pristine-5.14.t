@@ -4,9 +4,21 @@ use strict;
 use warnings;
 
 use FindBin;
+use File::Copy qw(copy);
 use File::Spec;
 use File::Temp;
 use Test::More;
+
+sub copy_log_file {
+    my ( $home ) = @_;
+    my $log_file = File::Spec->catfile($home, '.cpanm', 'build.log');
+    my $tempfile = File::Temp->new(
+        SUFFIX => '.log',
+        UNLINK => 0,
+    );
+    copy($log_file, $tempfile->filename);
+    diag("For details, please consult $tempfile")
+}
 
 sub is_dist_root {
     my ( @path ) = @_;
@@ -22,7 +34,7 @@ unless($ENV{'PERLBREW_ROOT'}) {
     exit;
 }
 
-my $brew = q[pristine-5.12.3];
+my $brew = q[pristine-5.14];
 
 my $cpanm_path = qx(which cpanm 2>/dev/null);
 unless($cpanm_path) {
@@ -65,7 +77,8 @@ $ENV{'PATH'} = join(':', $ENV{'PERLBREW_PATH'}, $pristine_path);
 
 plan tests => 1;
 
-my $tmpdir = File::Temp->newdir;
+my $tmpdir  = File::Temp->newdir;
+my $tmphome = File::Temp->newdir;
 
 my $pid = fork;
 if(!defined $pid) {
@@ -73,7 +86,7 @@ if(!defined $pid) {
     exit 1;
 } elsif($pid) {
     waitpid $pid, 0;
-    ok !$?, "cpanm should successfully install your dist with no issues";
+    ok !$?, "cpanm should successfully install your dist with no issues" or copy_log_file($tmphome->dirname);
 } else {
     close STDOUT;
     close STDERR;
@@ -87,6 +100,9 @@ if(!defined $pid) {
         die "Unable to find dist root\n";
     }
     chdir File::Spec->catdir(@path); # exit test directory
+
+    # override where cpanm puts its log file
+    $ENV{'HOME'} = $tmphome->dirname;
 
     
 
